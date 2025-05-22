@@ -1,3 +1,3 @@
-# Nuru Ya Maendeleo
+# Nuru Ya Maendeleo Loan Site
 
-Loan service website powered by Next.js.
+Basic Next.js app with login and dashboard pages.
