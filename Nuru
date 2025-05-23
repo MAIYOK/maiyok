@@ -1,0 +1,44 @@
+/* FILE: package.json */ { "name": "nuru-ya-maendeleo", "version": "1.0.0", "scripts": { "dev": "next dev", "build": "next build", "start": "next start" }, "dependencies": { "next": "latest", "react": "latest", "react-dom": "latest", "axios": "latest" } }
+
+/* FILE: pages/index.js */ import Link from 'next/link';
+
+export default function Home() { return ( <div className="p-6 text-center"> <h1 className="text-2xl font-bold">Nuru Ya Maendeleo</h1> <p className="mt-4">Welcome. Choose your portal:</p> <div className="mt-6 space-x-4"> <Link href="/login-admin" className="px-4 py-2 bg-blue-600 text-white rounded">Admin Login</Link> <Link href="/login-client" className="px-4 py-2 bg-green-600 text-white rounded">Client Login</Link> </div> </div> ); }
+
+/* FILE: pages/login-admin.js */ import { useState } from 'react'; import { useRouter } from 'next/router'; import axios from 'axios';
+
+export default function AdminLogin() { const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const router = useRouter();
+
+const handleLogin = async () => { try { const res = await axios.post('https://nuru-backend.onrender.com/api/admin/login', { email, password }); localStorage.setItem('adminToken', res.data.token); router.push('/dashboard-admin'); } catch (err) { alert('Login failed'); } };
+
+return ( <div className="p-6 max-w-md mx-auto"> <h2 className="text-xl mb-4">Admin Login</h2> <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full p-2 mb-2 border" /> <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="block w-full p-2 mb-4 border" /> <button onClick={handleLogin} className="bg-blue-600 text-white px-4 py-2">Login</button> </div> ); }
+
+/* FILE: pages/login-client.js */ import { useState } from 'react'; import { useRouter } from 'next/router'; import axios from 'axios';
+
+export default function ClientLogin() { const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const router = useRouter();
+
+const handleLogin = async () => { try { const res = await axios.post('https://nuru-backend.onrender.com/api/client/login', { email, password }); localStorage.setItem('clientToken', res.data.token); router.push('/dashboard-client'); } catch (err) { alert('Login failed'); } };
+
+return ( <div className="p-6 max-w-md mx-auto"> <h2 className="text-xl mb-4">Client Login</h2> <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full p-2 mb-2 border" /> <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="block w-full p-2 mb-4 border" /> <button onClick={handleLogin} className="bg-green-600 text-white px-4 py-2">Login</button> </div> ); }
+
+/* FILE: pages/dashboard-admin.js */ import { useState, useEffect } from 'react'; import axios from 'axios';
+
+export default function AdminDashboard() { const [products, setProducts] = useState([]); const [name, setName] = useState('');
+
+useEffect(() => { fetchProducts(); }, []);
+
+const fetchProducts = async () => { const res = await axios.get('https://nuru-backend.onrender.com/api/products'); setProducts(res.data); };
+
+const addProduct = async () => { await axios.post('https://nuru-backend.onrender.com/api/products', { name }); setName(''); fetchProducts(); };
+
+const deleteProduct = async (id) => { await axios.delete(https://nuru-backend.onrender.com/api/products/${id}); fetchProducts(); };
+
+return ( <div className="p-6"> <h2 className="text-xl font-bold mb-4">Admin Dashboard</h2> <input placeholder="Product Name" value={name} onChange={e => setName(e.target.value)} className="border p-2 mr-2" /> <button onClick={addProduct} className="bg-blue-600 text-white px-4 py-2">Add</button> <ul className="mt-6"> {products.map(p => ( <li key={p._id} className="flex justify-between items-center border-b py-2"> {p.name} <button onClick={() => deleteProduct(p._id)} className="text-red-600">Delete</button> </li> ))} </ul> </div> ); }
+
+/* FILE: pages/dashboard-client.js */ import { useState, useEffect } from 'react'; import axios from 'axios';
+
+export default function ClientDashboard() { const [products, setProducts] = useState([]);
+
+useEffect(() => { axios.get('https://nuru-backend.onrender.com/api/products').then(res => setProducts(res.data)); }, []);
+
+return ( <div className="p-6"> <h2 className="text-xl font-bold mb-4">Available Products</h2> <ul> {products.map(p => ( <li key={p._id} className="border-b py-2">{p.name}</li> ))} </ul> </div> ); }
+
